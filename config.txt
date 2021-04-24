@@ -1,0 +1,15 @@
+receptor = ./chaB_prep.pdbqt 
+
+center_x = 13.37
+center_y = -25.094
+center_z = 208.257
+
+size_x = 20
+size_y = 20
+size_z = 20
+
+exhaustiveness = 16
+energy_range = 30
+num_modes = 1
+
+
