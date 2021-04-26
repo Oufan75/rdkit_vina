@@ -1,8 +1,8 @@
 receptor = ./chaB_prep.pdbqt 
 
-center_x = 13.37
-center_y = -25.094
-center_z = 208.257
+center_x = 24.265
+center_y = -23.169
+center_z = 236.646
 
 size_x = 20
 size_y = 20
