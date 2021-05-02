@@ -63,12 +63,12 @@ def docksmile(smile, filename):
     '''
     #print(smile, filename)
     if not isinstance(smile, str):
-        raise Exception('Input is not a class of string')
+        raise TypeError('Input is not a class of string')
         
     m = MolFromSmiles(smile)
     # assert valid smiles
     if m is None:
-        raise Exception(smile, 'is not a valid smile string')
+        raise ValueError(smile, 'is not a valid smile string')
     mh = AddHs(m)
     embed = AllChem.EmbedMolecule(mh, useRandomCoords=True)
     
