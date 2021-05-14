@@ -70,7 +70,7 @@ def docksmile(smile, filename):
     if m is None:
         raise ValueError(smile, 'is not a valid smile string')
     mh = AddHs(m)
-    embed = AllChem.EmbedMolecule(mh, useRandomCoords=True)
+    embed = AllChem.EmbedMolecule(mh, useRandomCoords=False)
     
     #check if rdkit successfully generates structure
     if embed!=0:
