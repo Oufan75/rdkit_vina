@@ -4,9 +4,9 @@ center_x = 45.569
 center_y = 34.184
 center_z = 50.960
 
-size_x = 40
-size_y = 40
-size_z = 40
+size_x = 24
+size_y = 24
+size_z = 24
 
 exhaustiveness = 16
 energy_range = 30
