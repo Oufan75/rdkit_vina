@@ -80,14 +80,14 @@ def docksmile(smile, filename):
     # generate pdb file
     #pdb = MolToPDBFile(mh, 'input/'+filename+'.pdb', flavor=4)
     pdb = MolToPDBBlock(mh, flavor=4)
-    open('/tmp/'+filename+'.pdb', 'w').write(pdb)
+    open(filename+'.pdb', 'w').write(pdb)
     
     # convert pdb to pdbqt
     try:
-        out = subprocess.run([py_path, lig_path, '-l', '/tmp/'+filename+'.pdb', '-o','/tmp/'+filename+'.pdbqt'])
+        out = subprocess.run([py_path, lig_path, '-l', filename+'.pdb', '-o', filename+'.pdbqt'])
     except subprocess.CalledProcessError as e:
         print(e.output)
-    if not os.path.exists('/tmp/'+filename+'.pdbqt'):
+    if not os.path.exists(filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
         return smile, np.nan
     
@@ -107,8 +107,8 @@ def docksmile(smile, filename):
     for line in strings:
         if line[0:4] == '   1':
             energy = float(re.split(' +', line)[2])
-    #print(energy )      
-    return smile, energy
+    outpath = filename+'_out.pdbqt'     
+    return smile, energy, outpath
 
 # for testing
 #import pandas as pd
@@ -117,7 +117,7 @@ if __name__ == '__main__':
 
     smiles = 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N'
     #zipped = parallel(smiles)
-    smi, bind = docksmile(smiles, '1')
+    smi, bind, path = docksmile(smiles, '1')
     print(bind)
     #vina = pd.DataFrame({'smiles':smi, 'vina_score':bind})
 
