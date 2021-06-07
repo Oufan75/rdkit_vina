@@ -1,8 +1,7 @@
 # Oufan Zhang, Apr 13 2021
 # parallels autodock vina docking of a list of smiles strings into the covid spike pocket
 
-# prerequisite: download autodockvina and mgltools (change their paths accordingly),
-#               make input and output directories for storing files
+# prerequisite: download autodockvina and mgltools (change their paths accordingly)
 
 import numpy as np
 import re
