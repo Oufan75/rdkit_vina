@@ -74,7 +74,7 @@ def docksmile(smile, filename):
     #check if rdkit successfully generates structure
     if embed!=0:
         print('RDkit fails to embed molecule', smile, '; file:%s.pdb'%filename)
-        return smile, np.nan
+        return smile, np.nan, np.nan
         
     # generate pdb file
     #pdb = MolToPDBFile(mh, 'input/'+filename+'.pdb', flavor=4)
@@ -88,15 +88,16 @@ def docksmile(smile, filename):
         print(e.output)
     if not os.path.exists(filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
-        return smile, np.nan
+        return smile, np.nan, np.nan
     
+    # docking
     try:
         result = subprocess.run(['sh', './run_spike_open_docking.sh', filename], stdout=subprocess.PIPE)
         result = result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as er:
         print(er.output)
         print(smile, '; file:%s.pdbqt'%filename)
-        return smile, np.nan
+        return smile, np.nan, np.nan
     
     #print(filename+'.pdbqt','docking success')
 
