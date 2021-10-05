@@ -1,12 +1,31 @@
-receptor = ./chaB_prep.pdbqt 
+receptor = ./helicase_5rob.pdbqt 
 
-center_x = 24.265
-center_y = -23.169
-center_z = 236.646
+#site 1
+#center_x = -21.055
+#center_y = 16.761
+#center_z = -33.061
 
-size_x = 25.116
-size_y = 25.116
-size_z = 25.116
+#size_x = 20
+#size_y = 18
+#size_z = 18
+
+#site 2
+#center_x = -28.217
+#center_y = 12.111
+#center_z = -24.547
+
+#size_x = 16
+#size_y = 18
+#size_z = 16
+
+# site 3
+center_x = -23.934
+center_y = 29.468
+center_z = -25.272
+
+size_x = 18
+size_y = 18
+size_z = 16
 
 exhaustiveness = 16
 energy_range = 30
