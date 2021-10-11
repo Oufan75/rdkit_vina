@@ -114,13 +114,27 @@ def docksmile(smile, filename):
 #import pandas as pd
 
 if __name__ == '__main__':
+    import sys
+    import logging
 
-    smiles = 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N'
-    #zipped = parallel(smiles)
-    smi, bind = docksmile(smiles, '1')
-    print(bind)
-    #vina = pd.DataFrame({'smiles':smi, 'vina_score':bind})
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
 
+    logger.info("n_cpus:" + str(cpu_count()))
+    t = time.time()
+
+    if len(sys.argv) > 1:
+        smiles = sys.argv[1]
+    else:
+        smiles = 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N'
+    logger.info("accepted smiles: " + smiles)
+
+    vina_score = docksmile(smiles,'1')
+    logger.info("time: %.1f" % (time.time() - t))
+    print(vina_score[0], vina_score[1])
+
+    with open("/tmp/1_out.pdbqt") as f:
+        print(f.read())
 
 
 
