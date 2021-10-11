@@ -1,13 +1,13 @@
 receptor = ./helicase_5rob.pdbqt 
 
 #site 1
-#center_x = -21.055
-#center_y = 16.761
-#center_z = -33.061
+center_x = -21.055
+center_y = 16.761
+center_z = -33.061
 
-#size_x = 20
-#size_y = 18
-#size_z = 18
+size_x = 20
+size_y = 18
+size_z = 18
 
 #site 2
 #center_x = -28.217
@@ -19,13 +19,13 @@ receptor = ./helicase_5rob.pdbqt
 #size_z = 20
 
 # site 3
-center_x = -23.000
-center_y = 29.468
-center_z = -25.167
+#center_x = -23.000
+#center_y = 29.468
+#center_z = -25.167
 
-size_x = 20
-size_y = 20
-size_z = 20
+#size_x = 20
+#size_y = 20
+#size_z = 20
 
 exhaustiveness = 8
 energy_range = 30
