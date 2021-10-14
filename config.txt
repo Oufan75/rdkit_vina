@@ -1,4 +1,4 @@
-receptor = ./protease_distal.pdbqt 
+receptor = ./c3ai_protease_distal_site.pdbqt
 
 center_x = 69.564
 center_y = 37.698
