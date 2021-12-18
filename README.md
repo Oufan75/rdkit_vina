@@ -3,8 +3,8 @@ Scripts for coversion from SMILES to pdbqt and docking with Smina (based off Aut
 
 ## Dependencies
 RDkit
-Smina download: https://sourceforge.net/projects/smina/.
-Or run
+
+Smina download: https://sourceforge.net/projects/smina/, or run
 ```
 conda install -c conda-forge smina
 ```
