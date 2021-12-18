@@ -47,7 +47,7 @@ def smile_pose_generator(smile, nconf, filename):
     # generate pdb file
     pdb = MolToPDBBlock(mh, flavor=4)
     open(filename+'.pdb', 'w').write(pdb)
-    
+    '''
     # convert pdb to pdbqt by open babel
     try:
         out = subprocess.run(['sh', 'run_obabel.sh', filename])
@@ -56,17 +56,17 @@ def smile_pose_generator(smile, nconf, filename):
     if not os.path.exists(filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
         return smile, np.nan
-    
+    '''
     # generate random conformations
     filelist = []
     for n in range(nconf):
         try:
             result = subprocess.run(['sh', 'run_smina.sh', filename, str(n)], stdout=subprocess.PIPE)
             result = result.stdout.decode('utf-8')
-            filelist.append(filename+'_%i.pdbqt'%n)
+            filelist.append(filename+'_%i.pdb'%n)
         except subprocess.CalledProcessError as er:
             print(er.output)
-            print(smile, '; file:%s.pdbqt randomize failed'%filename) 
+            print(smile, '; file:%s.pdb randomize failed'%filename) 
     
     return smile, filelist
 
