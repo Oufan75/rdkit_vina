@@ -10,15 +10,13 @@ import subprocess
 from rdkit.Chem import MolFromSmiles, AddHs, AllChem
 from rdkit.Chem.rdmolfiles import MolToPDBBlock, MolToPDBFile
 
-import glob
-from multiprocessing import Pool, cpu_count, freeze_support
-
 import time
 import os
 #cwd = os.path.dirname(os.path.abspath(__file__))
 
 # the path to pdbqt conversion script
 lig_path = 'mgltools_x86_64Linux2/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py'
+# smina uses obabel as alternative
 
 # the path to pythonsh (mgltools functionalities written in python2)
 py_path = 'mgltools_x86_64Linux2/bin/pythonsh'
@@ -26,40 +24,13 @@ py_path = 'mgltools_x86_64Linux2/bin/pythonsh'
 #vina = 'autodock_vina_1_1_2_linux_x86/bin/vina'
 
 
-def parallel(smilelist, cpus=cpu_count()):
-    '''
-    takes a list of smiles strings as input, 
-    and returns zipped tuples of (smiles, binding affinities).
-    
-    '''
-    # record time
-    st = time.perf_counter()
-    #try:
-    #    empty('./input/*')
-    #    empty('./output/*')
-    #except: 
-    #    pass
-    freeze_support()
-    
-    nsmile = len(smilelist)
-    args = [(smilelist[n], str(n)) for n in range(nsmile)]
-    with Pool(cpus) as pool:   
-        out = pool.starmap(docksmile, args)
-        
-    print('time elapsed: {:0.4f}s'.format(time.perf_counter()-st))
-    return out
-   
-def empty(path):
-    for file in glob.glob(path):
-        os.remove(file)
-
-def docksmile(smile, filename):
+def smile_pose_generator(smile, nconf, filename):
 
     '''
-    coverts a smile string to pdbqt and runs autodock vina,
-    returns the binding energy of its top pose
-    
-    Vina configuration details in config.txt
+    coverts a smile string to pdbqt and runs smina to sample conformations
+    ========
+    nconf: np.int
+       number of conformations to generate
     '''
     #print(smile, filename)
     if not isinstance(smile, str):
@@ -77,38 +48,29 @@ def docksmile(smile, filename):
         print('RDkit fails to embed molecule', smile, '; file:%s.pdb'%filename)
         return smile, np.nan
         
-    # generate pdb file
+    # generate mol2 file
     #pdb = MolToPDBFile(mh, 'input/'+filename+'.pdb', flavor=4)
     pdb = MolToPDBBlock(mh, flavor=4)
     open('/tmp/'+filename+'.pdb', 'w').write(pdb)
     
-    # convert pdb to pdbqt
+    # convert mol2 to pdbqt by open babel
     try:
-        out = subprocess.run([py_path, lig_path, '-l', '/tmp/'+filename+'.pdb', '-o','/tmp/'+filename+'.pdbqt'])
+        out = subprocess.run(['obabel', '-imol2', '/tmp/'+filename+'.pdb', '-opdbqt', '-O', '/tmp/'+filename+'.pdbqt'])
     except subprocess.CalledProcessError as e:
         print(e.output)
     if not os.path.exists('/tmp/'+filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
         return smile, np.nan
     
+    filelist = []
     try:
-        result = subprocess.run(['sh', './run_spike_open_docking.sh', filename], stdout=subprocess.PIPE)
+        result = subprocess.run(['sh', 'run_smina_randomize.sh', filename], stdout=subprocess.PIPE)
         result = result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as er:
         print(er.output)
-        print(smile, '; file:%s.pdbqt'%filename)
-        return smile, np.nan
+        print(smile, '; file:%s.pdbqt'%filename) 
     
-    #print(filename+'.pdbqt','docking success')
-
-    # read energy from output
-    energy = np.nan
-    strings = re.split('\n', result)
-    for line in strings:
-        if line[0:4] == '   1':
-            energy = float(re.split(' +', line)[2])
-    #print(energy )      
-    return smile, energy
+    return smile, filelist
 
 # for testing
 #import pandas as pd
@@ -116,25 +78,6 @@ def docksmile(smile, filename):
 if __name__ == '__main__':
     import sys
     import logging
-
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger()
-
-    logger.info("n_cpus:" + str(cpu_count()))
-    t = time.time()
-
-    if len(sys.argv) > 1:
-        smiles = sys.argv[1]
-    else:
-        smiles = 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N'
-    logger.info("accepted smiles: " + smiles)
-
-    vina_score = docksmile(smiles,'1')
-    logger.info("time: %.1f" % (time.time() - t))
-    print(vina_score[0], vina_score[1])
-
-    with open("/tmp/1_out.pdbqt") as f:
-        print(f.read())
 
 
 
