@@ -1,27 +1,23 @@
-# Oufan Zhang, Apr 13 2021
-# parallels autodock vina docking of a list of smiles strings into the covid spike pocket
+# Oufan Zhang, Dec 17 2021
+# autodock vina docking of a list of smiles strings 
 
-# prerequisite: download autodockvina and mgltools (change their paths accordingly),
-#               make input and output directories for storing files
+# prerequisite: download smina and rdkit
 
 import numpy as np
-import re
+import re, os
 import subprocess
 from rdkit.Chem import MolFromSmiles, AddHs, AllChem
-from rdkit.Chem.rdmolfiles import MolToPDBBlock, MolToPDBFile
+from rdkit.Chem.rdmolfiles import MolToPDBBlock
 
-import time
-import os
-#cwd = os.path.dirname(os.path.abspath(__file__))
-
+'''
 # the path to pdbqt conversion script
-lig_path = 'mgltools_x86_64Linux2/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py'
-# smina uses obabel as alternative
+lig_path = '/home/oufan/Desktop/autodock/mgltools_x86_64Linux2/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py'
 
 # the path to pythonsh (mgltools functionalities written in python2)
-py_path = 'mgltools_x86_64Linux2/bin/pythonsh'
+py_path = '/home/oufan/Desktop/autodock/mgltools_x86_64Linux2/bin/pythonsh'
 
 #vina = 'autodock_vina_1_1_2_linux_x86/bin/vina'
+'''
 
 
 def smile_pose_generator(smile, nconf, filename):
@@ -48,36 +44,40 @@ def smile_pose_generator(smile, nconf, filename):
         print('RDkit fails to embed molecule', smile, '; file:%s.pdb'%filename)
         return smile, np.nan
         
-    # generate mol2 file
-    #pdb = MolToPDBFile(mh, 'input/'+filename+'.pdb', flavor=4)
+    # generate pdb file
     pdb = MolToPDBBlock(mh, flavor=4)
-    open('/tmp/'+filename+'.pdb', 'w').write(pdb)
+    open(filename+'.pdb', 'w').write(pdb)
     
-    # convert mol2 to pdbqt by open babel
+    # convert pdb to pdbqt by open babel
     try:
-        out = subprocess.run(['obabel', '-imol2', '/tmp/'+filename+'.pdb', '-opdbqt', '-O', '/tmp/'+filename+'.pdbqt'])
+        out = subprocess.run(['sh', 'run_obabel.sh', filename])
     except subprocess.CalledProcessError as e:
         print(e.output)
-    if not os.path.exists('/tmp/'+filename+'.pdbqt'):
+    if not os.path.exists(filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
         return smile, np.nan
     
+    # generate random conformations
     filelist = []
-    try:
-        result = subprocess.run(['sh', 'run_smina_randomize.sh', filename], stdout=subprocess.PIPE)
-        result = result.stdout.decode('utf-8')
-    except subprocess.CalledProcessError as er:
-        print(er.output)
-        print(smile, '; file:%s.pdbqt'%filename) 
+    for n in range(nconf):
+        try:
+            result = subprocess.run(['sh', 'run_smina.sh', filename, str(n)], stdout=subprocess.PIPE)
+            result = result.stdout.decode('utf-8')
+            filelist.append(filename+'_%i.pdbqt'%n)
+        except subprocess.CalledProcessError as er:
+            print(er.output)
+            print(smile, '; file:%s.pdbqt randomize failed'%filename) 
     
     return smile, filelist
 
+
 # for testing
-#import pandas as pd
+import pandas as pd
 
 if __name__ == '__main__':
-    import sys
-    import logging
+
+    s, flist = smile_pose_generator('CCCCCC', 2, 'test')
+    print(flist)
 
 
 
