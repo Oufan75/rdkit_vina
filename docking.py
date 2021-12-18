@@ -60,13 +60,8 @@ def smile_pose_generator(smile, nconf, filename):
     # generate random conformations
     filelist = []
     for n in range(nconf):
-        try:
-            result = subprocess.run(['sh', 'run_smina.sh', filename, str(n)], stdout=subprocess.PIPE)
-            result = result.stdout.decode('utf-8')
-            filelist.append(filename+'_%i.pdb'%n)
-        except subprocess.CalledProcessError as er:
-            print(er.output)
-            print(smile, '; file:%s.pdb randomize failed'%filename) 
+        result = subprocess.run(['sh', 'run_smina.sh', filename, str(n)], stdout=subprocess.PIPE)
+        filelist.append(filename+'_%i.pdb'%n)
     
     return smile, filelist
 
