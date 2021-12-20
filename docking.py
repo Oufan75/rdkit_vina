@@ -46,7 +46,10 @@ def smile_pose_generator(smile, nconf, filename):
         
     # generate pdb file
     pdb = MolToPDBBlock(mh, flavor=4)
-    open(filename+'.pdb', 'w').write(pdb)
+    if not os.path.exists(filename):
+        os.mkdir(filename)
+    with open(filename+'/initial_conf.pdb', 'w') as f:
+        f.write(pdb)
     '''
     # convert pdb to pdbqt by open babel
     try:
@@ -61,18 +64,26 @@ def smile_pose_generator(smile, nconf, filename):
     filelist = []
     for n in range(nconf):
         result = subprocess.run(['sh', 'run_smina.sh', filename, str(n)], stdout=subprocess.PIPE)
-        filelist.append(filename+'_%i.pdb'%n)
+        filelist.append(filename+'/out_%i.pdb'%n)
     
     return smile, filelist
 
+def rf_score(input_struc, ligands):
+    result = subprocess.run(['./bins/rf-score-vs', '--receptor', input_struc] + \
+             ligands + ['-O', 'results.csv', '--field', 'name', '--field', 'RFScoreVS_v2'])
+    df = pd.read_csv('results.csv')
+    max_score_idx = df['RFScoreVS_v2'].argmax()
+    return df['name'].iloc[max_score_idx],  df['RFScoreVS_v2'].iloc[max_score_idx]
 
 # for testing
 import pandas as pd
 
 if __name__ == '__main__':
 
-    s, flist = smile_pose_generator('CCCCCC', 2, 'test')
-    print(flist)
+    s, flist = smile_pose_generator('CCN[C@@H]1CCN(CCNc2cc(-c3cccc(N)n3)ncn2)C1', 100, 'test')
+    
+    name, score = rf_score('helicase_5rob.pdbqt', flist)
 
+    print(name, ":", score)
 
 
