@@ -18,10 +18,10 @@ import os
 #cwd = os.path.dirname(os.path.abspath(__file__))
 
 # the path to pdbqt conversion script
-lig_path = 'mgltools_x86_64Linux2/MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py'
+lig_path = 'MGLToolsPckgs/AutoDockTools/Utilities24/prepare_ligand4.py'
 
 # the path to pythonsh (mgltools functionalities written in python2)
-py_path = 'mgltools_x86_64Linux2/bin/pythonsh'
+py_path = 'bin/pythonsh'
 
 #vina = 'autodock_vina_1_1_2_linux_x86/bin/vina'
 
@@ -92,7 +92,7 @@ def docksmile(smile, filename):
         return smile, np.nan
     
     try:
-        result = subprocess.run(['sh', './run_spike_open_docking.sh', filename], stdout=subprocess.PIPE)
+        result = subprocess.run(['sh', './run_docking.sh', filename], stdout=subprocess.PIPE)
         result = result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as er:
         print(er.output)
@@ -116,25 +116,31 @@ def docksmile(smile, filename):
 if __name__ == '__main__':
     import sys
     import logging
+    import argparse
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-smiles', help='the smiles for docking', default="OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N")
+    parser.add_argument('-l', '--ligand', help='the ligand .pdbqt file used for docking')
+    parser.add_argument('-g', '--gpu', help="use GPU for docking", action='store_true')
+
+    args = parser.parse_args()
+
     logger.info("n_cpus:" + str(cpu_count()))
     t = time.time()
 
-    if len(sys.argv) > 1:
-        smiles = sys.argv[1]
-    else:
-        smiles = 'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N'
-    logger.info("accepted smiles: " + smiles)
+    hashed_smiles = str(hash(args.smiles) % ((sys.maxsize + 1) * 2)) 
+    logger.info("accepted smiles: " + args.smiles)
 
-    vina_score = docksmile(smiles,'1')
+    vina_score = docksmile(args.smiles, hashed_smiles)
     logger.info("time: %.1f" % (time.time() - t))
     print(vina_score[0], vina_score[1])
 
-    with open("/tmp/1_out.pdbqt") as f:
+    with open(f"/tmp/{hashed_smiles}_out.pdbqt") as f:
         print(f.read())
+
 
 
 
