@@ -27,7 +27,7 @@ size_z = 20
 #size_y = 20
 #size_z = 20
 
-exhaustiveness = 8
+#exhaustiveness = 8
 energy_range = 30
 num_modes = 1
 

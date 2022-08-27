@@ -53,13 +53,15 @@ def empty(path):
     for file in glob.glob(path):
         os.remove(file)
 
-def docksmile(smile, filename):
+def docksmile(smile, filename, gpu=False):
 
     '''
     coverts a smile string to pdbqt and runs autodock vina,
     returns the binding energy of its top pose
     
     Vina configuration details in config.txt
+
+    gpu: either False (not using GPU), or a string specifying which GPU to use
     '''
     #print(smile, filename)
     if not isinstance(smile, str):
@@ -92,7 +94,11 @@ def docksmile(smile, filename):
         return smile, np.nan
     
     try:
-        result = subprocess.run(['sh', './run_docking.sh', filename], stdout=subprocess.PIPE)
+        if gpu:
+            docking_script = "./run_docking_gpu.sh"
+        else: 
+            docking_script = "./run_docking.sh"
+        result = subprocess.run(['sh', docking_script, filename], stdout=subprocess.PIPE)
         result = result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as er:
         print(er.output)
@@ -134,7 +140,7 @@ if __name__ == '__main__':
     hashed_smiles = str(hash(args.smiles) % ((sys.maxsize + 1) * 2)) 
     logger.info("accepted smiles: " + args.smiles)
 
-    vina_score = docksmile(args.smiles, hashed_smiles)
+    vina_score = docksmile(args.smiles, hashed_smiles, args.gpu)
     logger.info("time: %.1f" % (time.time() - t))
     print(vina_score[0], vina_score[1])
 
