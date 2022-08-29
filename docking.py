@@ -96,9 +96,10 @@ def docksmile(smile, filename, gpu=False):
     try:
         if gpu:
             docking_script = "./run_docking_gpu.sh"
+            result = subprocess.run(['sh', docking_script, filename, gpu], stdout=subprocess.PIPE)
         else: 
             docking_script = "./run_docking.sh"
-        result = subprocess.run(['sh', docking_script, filename], stdout=subprocess.PIPE)
+            result = subprocess.run(['sh', docking_script, filename], stdout=subprocess.PIPE)
         result = result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as er:
         print(er.output)
@@ -130,7 +131,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-smiles', help='the smiles for docking', default="OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N")
     parser.add_argument('-l', '--ligand', help='the ligand .pdbqt file used for docking')
-    parser.add_argument('-g', '--gpu', help="use GPU for docking", action='store_true')
+    parser.add_argument('-g', '--gpu', help="GPU index used for docking", default=None)
 
     args = parser.parse_args()
 
