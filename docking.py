@@ -77,6 +77,8 @@ def docksmile(smile, filename, gpu=False, return_docked_file=False):
     #check if rdkit successfully generates structure
     if embed!=0:
         print('RDkit fails to embed molecule', smile, '; file:%s.pdb'%filename)
+        if return_docked_file:
+            return smile, np.nan, None
         return smile, np.nan
         
     # generate pdb file
