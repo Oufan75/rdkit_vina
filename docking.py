@@ -53,7 +53,7 @@ def empty(path):
     for file in glob.glob(path):
         os.remove(file)
 
-def docksmile(smile, filename, gpu=False):
+def docksmile(smile, filename, gpu=False, return_docked_file=False):
 
     '''
     coverts a smile string to pdbqt and runs autodock vina,
@@ -91,6 +91,8 @@ def docksmile(smile, filename, gpu=False):
         print(e.output)
     if not os.path.exists('/tmp/'+filename+'.pdbqt'):
         print("%s does't exist" % (filename+'.pdbqt'))
+        if return_docked_file:
+            return smile, np.nan, None
         return smile, np.nan
     
     try:
@@ -104,6 +106,8 @@ def docksmile(smile, filename, gpu=False):
     except subprocess.CalledProcessError as er:
         print(er.output)
         print(smile, '; file:%s.pdbqt'%filename)
+        if return_docked_file:
+            return smile, np.nan, None
         return smile, np.nan
     
     #print(filename+'.pdbqt','docking success')
@@ -114,7 +118,14 @@ def docksmile(smile, filename, gpu=False):
     for line in strings:
         if line[0:4] == '   1':
             energy = float(re.split(' +', line)[2])
-    #print(energy )      
+    #print(energy )  
+    if return_docked_file:
+        if os.path.exists('/tmp/'+filename+'_out.pdbqt'):
+            with open('/tmp/'+filename+'_out.pdbqt') as f:
+                docked_file = f.read()
+            return smile, energy, docked_file
+        else:
+            return smile, energy, None
     return smile, energy
 
 # for testing
