@@ -72,7 +72,10 @@ def docksmile(smile, filename, gpu=False, return_docked_file=False):
     if m is None:
         raise ValueError(smile, 'is not a valid smile string')
     mh = AddHs(m)
-    embed = AllChem.EmbedMolecule(mh, useRandomCoords=False)
+    try:
+        embed = AllChem.EmbedMolecule(mh, useRandomCoords=False)
+    except:
+        embed = -1
     
     #check if rdkit successfully generates structure
     if embed!=0:
@@ -88,7 +91,7 @@ def docksmile(smile, filename, gpu=False, return_docked_file=False):
     
     # convert pdb to pdbqt
     try:
-        out = subprocess.run([py_path, lig_path, '-l', '/tmp/'+filename+'.pdb', '-o','/tmp/'+filename+'.pdbqt'])
+            out = subprocess.run([py_path, lig_path, '-l', '/tmp/'+filename+'.pdb', '-o','/tmp/'+filename+'.pdbqt'])
     except subprocess.CalledProcessError as e:
         print(e.output)
     if not os.path.exists('/tmp/'+filename+'.pdbqt'):
